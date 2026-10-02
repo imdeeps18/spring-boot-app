@@ -47,8 +47,8 @@ jobs:
         - name: Set up JDK
           uses: actions/setup-java@v5
           with:
-            java-version: ${{ inputs.java-version }}
-            distribution: ${{ inputs.java-distribution }}
+            java-version: ${{ inputs.java-version || '21' }}
+            distribution: ${{ inputs.java-distribution || 'temurin' }}
 
         - name: Build with Maven
           run: mvn -B package --file pom.xml
@@ -71,7 +71,7 @@ jobs:
             context: .
             file: ./Dockerfile
             push: true
-            tags: ${{ secrets.DOCKER_USERNAME }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
+            tags: ${{ secrets.DOCKER_USERNAME }}/${{ inputs.image-name || 'springboot-java-app-pipeline' }}:${{ inputs.image-tag || 'latest' }}
 
 #  .................... CI pipeline completed successfully .....................
         - name: CI pipeline completed successfully
