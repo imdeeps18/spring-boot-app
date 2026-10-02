@@ -79,7 +79,7 @@ jobs:
           printf '%s' "$DOCKER_PASSWORD" | ssh \
             -i ~/.ssh/ec2_deploy_key \
             "$EC2_USER@$EC2_HOST" \
-            "docker login --username '$DOCKER_USERNAME' --password-stdin"
+            "sudo docker login --username '$DOCKER_USERNAME' --password-stdin"
 
       - name: Pull and run image on EC2
         env:
@@ -91,13 +91,13 @@ jobs:
           IMAGE="$DOCKER_USERNAME/${{inputs.image-name}}:$IMAGE_TAG"
           ssh -i ~/.ssh/ec2_deploy_key "$EC2_USER@$EC2_HOST" "IMAGE='$IMAGE' bash -s" <<'REMOTE'
           set -euo pipefail
-          trap 'docker logout || echo "Warning: Docker Hub logout failed on EC2."' EXIT
+          trap 'sudo docker logout || echo "Warning: Docker Hub logout failed on EC2."' EXIT
 
-          docker pull "$IMAGE"
-          if docker container inspect spring-boot-app >/dev/null 2>&1; then
-            docker rm -f spring-boot-app
+          sudo docker pull "$IMAGE"
+          if sudo docker container inspect spring-boot-app >/dev/null 2>&1; then
+            sudo docker rm -f spring-boot-app
           fi
-          docker run -d \
+          sudo docker run -d \
             --restart unless-stopped \
             --name spring-boot-app \
             -p 8081:8081 \
