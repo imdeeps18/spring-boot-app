@@ -1,0 +1,78 @@
+name: Java CI Build
+
+permissions:
+  actions: read
+  contents: write
+  pull-requests: read
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_call:
+    inputs:
+      java-version:
+        description: 'Java version to use'
+        required: true
+        default: '21'
+        type: string
+      java-distribution:
+        description: 'Java distribution to use'
+        required: true
+        default: 'temurin'
+        type: string
+
+      image-name:
+        description: 'Docker image name to use'
+        required: true
+        default: 'springboot-java-app-pipeline'
+        type: string
+
+      image-tag:
+        description: 'Docker image tag to use'
+        required: true
+        default: 'latest'
+        type: string
+
+jobs:
+    build:
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout/clone repository
+          uses: actions/checkout@v4
+          with:
+            repository: ${{ github.repository }}
+            fetch-depth: 0
+
+        - name: Set up JDK
+          uses: actions/setup-java@v4
+          with:
+            java-version: ${{ inputs.java-version }}
+            distribution: ${{ inputs.java-distribution }}
+
+        - name: Build with Maven
+          run: mvn -B package --file pom.xml
+
+## 3. Set up Docker Buildx (required for the official build action)
+        - name: Setup Docker Buildx
+          uses: docker/setup-buildx-action@v4
+
+# login to docker hub
+        - name: Login to DockerHub
+          uses: docker/login-action@v4
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+
+# build and push to docker hub
+        - name: Build and push Docker image
+          uses: docker/build-push-action@v5
+          with:
+            context: .
+            file: ./Dockerfile
+            push: true
+            tags: ${{ secrets.DOCKER_USERNAME }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
+
+#  .................... CI pipeline completed successfully .....................
+        - name: CI pipeline completed successfully
+          run: echo "CI pipeline completed successfully"
