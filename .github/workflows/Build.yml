@@ -77,12 +77,27 @@ jobs:
 
 # build and push to docker hub
         - name: Build and push Docker image
+          id: docker-build
           uses: docker/build-push-action@v5
           with:
             context: .
             file: ./Dockerfile
             push: true
             tags: ${{ secrets.DOCKER_USERNAME }}/${{ inputs.image-name || 'springboot-java-app-pipeline' }}:${{ inputs.image-tag || 'latest' }}
+
+        - name: Get Docker image
+          env:
+            IMAGE_REF: ${{ secrets.DOCKER_USERNAME }}/${{ inputs.image-name || 'springboot-java-app-pipeline' }}:${{ inputs.image-tag || 'latest' }}
+            IMAGE_DIGEST: ${{ steps.docker-build.outputs.digest }}
+          run: |
+            echo "Pushed image: $IMAGE_REF"
+            echo "Image digest: $IMAGE_DIGEST"
+            {
+              echo "### Docker image pushed"
+              echo
+              echo "- Image: \`$IMAGE_REF\`"
+              echo "- Digest: \`$IMAGE_DIGEST\`"
+            } >> "$GITHUB_STEP_SUMMARY"
 
 #  .................... CI pipeline completed successfully .....................
         - name: CI pipeline completed successfully
