@@ -4,6 +4,7 @@ permissions:
   actions: read
   contents: write
   pull-requests: read
+  security-events: write
 
 on:
   push:
@@ -51,7 +52,7 @@ jobs:
             distribution: ${{ inputs.java-distribution || 'temurin' }}
 
         - name: CodeQL Action Init
-          uses: github/codeql-action/init@v5
+          uses: github/codeql-action/init@v4
           with:
             languages: java
 
@@ -59,7 +60,7 @@ jobs:
           run: mvn -B package --file pom.xml
 
         - name: Run the code for CodeQL scan
-          uses: github/codeql-action/analyze@v5
+          uses: github/codeql-action/analyze@v4
           with:
             category: "/language:java"
 
