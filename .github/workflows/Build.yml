@@ -50,8 +50,18 @@ jobs:
             java-version: ${{ inputs.java-version || '21' }}
             distribution: ${{ inputs.java-distribution || 'temurin' }}
 
+        - name: CodeQL Action Init
+          uses: github/codeql-action/init@v5
+          with:
+            languages: java
+
         - name: Build with Maven
           run: mvn -B package --file pom.xml
+
+        - name: Run the code for CodeQL scan
+          uses: github/codeql-action/analyze@v5
+          with:
+            category: "/language:java"
 
 ## 3. Set up Docker Buildx (required for the official build action)
         - name: Setup Docker Buildx
