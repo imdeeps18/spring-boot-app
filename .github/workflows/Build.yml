@@ -7,8 +7,18 @@ permissions:
   security-events: write
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      image-name:
+        description: Docker image name to build and push
+        required: true
+        default: springboot-java-app-pipeline
+        type: string
+      image-tag:
+        description: Docker image tag to build and push
+        required: true
+        default: latest
+        type: string
   workflow_call:
     inputs:
       java-version:
@@ -22,17 +32,17 @@ on:
         default: 'temurin'
         type: string
 
-      image-name:
-        description: 'Docker image name to use'
-        required: true
-        default: 'springboot-java-app-pipeline'
-        type: string
-
-      image-tag:
-        description: 'Docker image tag to use'
-        required: true
-        default: 'latest'
-        type: string
+#      image-name:
+#        description: 'Docker image name to use'
+#        required: true
+#        default: 'springboot-java-app-pipeline'
+#        type: string
+#
+#      image-tag:
+#        description: 'Docker image tag to use'
+#        required: true
+#        default: 'latest'
+#        type: string
 
 jobs:
     build:
